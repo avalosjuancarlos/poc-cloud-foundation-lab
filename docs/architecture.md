@@ -1,6 +1,6 @@
 # Arquitectura — poc-cloud-foundation-lab
 
-Dos stacks (ADR 001): **local** (LocalStack Community) y **aws** (`us-east-1`, ADR 006). Decisiones: [decisions.md](./decisions.md). Costos: [costs-local.md](./costs-local.md) · [costs-aws.md](./costs-aws.md) (Infracost A7; runbook E2E en A10).
+Dos stacks (ADR 001): **local** (LocalStack Community) y **aws** (`us-east-1`, ADR 006). Decisiones: [decisions.md](./decisions.md). Costos: [costs-local.md](./costs-local.md) · [costs-aws.md](./costs-aws.md). Runbook: [README](../README.md).
 
 ---
 
@@ -57,7 +57,7 @@ flowchart TB
 
 ---
 
-## Stack aws (esta etapa)
+## Stack aws
 
 Región `us-east-1`, AZs `a` y `b`. Internet → ALB (subnets públicas) → ASG `t3.nano` (públicas, SG solo desde el ALB) → RDS PostgreSQL privada. S3 vía instance profile. Sin NAT Gateway (ADR 007). Infracost cotiza este HCL, no el local (ADR 011).
 
@@ -120,7 +120,7 @@ El sample Packt es frágil (1 AZ, 1 instance, DB en la VM). Local solo modela es
 
 ## Alcance
 
-| | Local | AWS (A1–A10) |
+| | Local | AWS |
 |---|---|---|
-| Sí | API LocalStack, Compose, scripts/tests, [costs-local](./costs-local.md) | Diagrama + ADR 006–011 ahora; IaC/IAM/scripts/Infracost en A2–A10 |
+| Sí | API LocalStack, Compose, scripts/tests, [costs-local](./costs-local.md) | VPC 2 AZ, ALB+ASG, RDS, Infracost, [costs-aws](./costs-aws.md), destroy el mismo día |
 | No | phpinfo real, RDS, NAT | NAT GW, RDS Multi-AZ default, `app/` como apply |

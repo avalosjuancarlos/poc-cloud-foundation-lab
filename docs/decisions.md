@@ -29,7 +29,7 @@ Alternativas:
 
 Tradeoff: Se duplican carpetas y hay que mantener dos árboles. A cambio, un `apply` en `iac/local` no puede pegarle a AWS real, y `iac/aws` no queda atado a los límites de Community.
 
-Resultado: `*/local` implementado (P1–P9). `*/aws` se implementa en esta etapa (A1–A10); no comparte módulos con local.
+Resultado: `*/local` implementado (P1–P9). `*/aws` implementado (A1–A10); no comparte módulos con local.
 
 ### 002 — El proyecto se agrupa por entorno bajo las carpetas del starter
 
@@ -163,7 +163,7 @@ Alternativas:
 
 Tradeoff: No hay resiliencia continua. Hay control de factura.
 
-Resultado: Documentado. Runbook en A10; Budget en A2.
+Resultado: Implementado. Runbook en el README; Budget en A2.
 
 ### 011 — Infracost cotiza `iac/aws`, no `iac/local`
 
