@@ -133,7 +133,7 @@ Alternativas:
 
 Tradeoff: Single-AZ sigue siendo SPOF de AZ para datos. Sigue siendo mejor que DB en el compute. El apply efímero (ADR 010) limita la ventana de riesgo.
 
-Resultado: Documentado. Recursos en A5.
+Resultado: Implementado en `iac/aws` (`rds.tf`). Multi-AZ queda como variable, default `false`.
 
 ### 009 — Profile `poc-aws`; no mezclar con LocalStack
 

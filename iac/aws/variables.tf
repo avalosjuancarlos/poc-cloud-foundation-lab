@@ -54,3 +54,45 @@ variable "private_subnet_cidrs" {
     error_message = "Se requieren exactamente dos CIDR privados."
   }
 }
+
+variable "bucket_name" {
+  type        = string
+  default     = null
+  description = "Bucket de la app. Si es null: {project}-{account_id}-app."
+}
+
+variable "db_instance_class" {
+  type        = string
+  description = "Clase RDS (ADR 008)."
+  default     = "db.t4g.micro"
+}
+
+variable "db_allocated_storage" {
+  type        = number
+  description = "Storage gp3 en GiB."
+  default     = 20
+}
+
+variable "db_engine_version" {
+  type        = string
+  description = "Major version de PostgreSQL."
+  default     = "16"
+}
+
+variable "db_multi_az" {
+  type        = bool
+  description = "Multi-AZ duplica el costo de RDS. Default false (ADR 008)."
+  default     = false
+}
+
+variable "db_name" {
+  type        = string
+  description = "Nombre de la base inicial."
+  default     = "app"
+}
+
+variable "db_username" {
+  type        = string
+  description = "Master user. No usar postgres (reservado)."
+  default     = "appadmin"
+}

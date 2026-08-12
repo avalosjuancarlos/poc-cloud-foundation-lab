@@ -5,3 +5,12 @@ availability_zones   = ["us-east-1a", "us-east-1b"]
 vpc_cidr             = "10.0.0.0/16"
 public_subnet_cidrs  = ["10.0.0.0/24", "10.0.1.0/24"]
 private_subnet_cidrs = ["10.0.10.0/24", "10.0.11.0/24"]
+
+# bucket_name = "unico-global" # default: {project}-{account_id}-app
+
+db_instance_class    = "db.t4g.micro"
+db_allocated_storage = 20
+db_engine_version    = "16"
+db_multi_az          = false
+db_name              = "app"
+db_username          = "appadmin"

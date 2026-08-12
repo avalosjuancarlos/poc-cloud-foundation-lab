@@ -37,9 +37,15 @@ Crea: bucket de state (versionado, cifrado, sin acceso público), tabla DynamoDB
 
 ## 3. Red (A4)
 
-`network.tf`: VPC `10.0.0.0/16`, dos públicas (`10.0.0.0/24`, `10.0.1.0/24`) con IGW, dos privadas (`10.0.10.0/24`, `10.0.11.0/24`) **sin** NAT. RDS (A5) y ALB/ASG (A6) usan estos outputs.
+`network.tf`: VPC `10.0.0.0/16`, dos públicas (`10.0.0.0/24`, `10.0.1.0/24`) con IGW, dos privadas (`10.0.10.0/24`, `10.0.11.0/24`) **sin** NAT.
 
-## 4. Backend del stack de aplicación
+## 4. Datos (A5)
+
+S3 (AES256, public access block, bucket policy con Deny TLS) + IAM instance profile desde `iam/aws`. RDS PostgreSQL `db.t4g.micro`, 20 GB gp3, Single-AZ, **sin** `publicly_accessible`. Password con `random_password` (state, no git). SG de RDS solo admite 5432 desde el SG de la app; el ingress HTTP del app SG lo agrega A6.
+
+`db_multi_az = true` está en variables; no es el default (ADR 008).
+
+## 5. Backend del stack de aplicación
 
 Cuando existan red/RDS/ALB (A4–A6):
 
@@ -51,6 +57,6 @@ terraform -chdir=iac/aws init
 
 `terraform.tfvars` y `backend.tf` no se commitean (gitignore).
 
-## 5. Infracost
+## 6. Infracost
 
 Solo `--path iac/aws` (ADR 011), después de A6. Nunca sobre `iac/local` ni sobre `bootstrap` como si fuera el lab de 8 h (el Budget y el state bucket sí tienen costo mínimo).
