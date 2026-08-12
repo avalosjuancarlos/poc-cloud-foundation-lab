@@ -1,6 +1,6 @@
 # Arquitectura — poc-cloud-foundation-lab
 
-Dos stacks (ADR 001): **local** (LocalStack Community) y **aws** (`us-east-1`, ADR 006). Decisiones: [decisions.md](./decisions.md). Costos: [costs-local.md](./costs-local.md) · [costs-aws.md](./costs-aws.md) (este último se llena en A10 con Infracost).
+Dos stacks (ADR 001): **local** (LocalStack Community) y **aws** (`us-east-1`, ADR 006). Decisiones: [decisions.md](./decisions.md). Costos: [costs-local.md](./costs-local.md) · [costs-aws.md](./costs-aws.md) (Infracost A7; runbook E2E en A10).
 
 ---
 

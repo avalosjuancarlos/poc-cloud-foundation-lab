@@ -27,6 +27,7 @@ iac/
 ```bash
 ./scripts/aws/01_creds.sh
 # bootstrap: ver iac/aws/README.md
+./scripts/aws/infracost.sh   # host; nunca iac/local
 ```
 
 No compartir módulos entre `local/` y `aws/`.

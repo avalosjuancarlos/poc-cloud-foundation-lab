@@ -1,0 +1,21 @@
+# Usage mensual del lab si el stack queda prendido (Infracost = 730 h).
+# Lab de 8 h: monthly × 8/730. Valores chicos a propósito (demo phpinfo, no prod).
+# Docs: https://www.infracost.io/docs/features/usage_based_resources/
+version: 0.1
+resource_usage:
+  aws_lb.app:
+    new_connections: 1
+    active_connections: 2
+    processed_bytes_gb: 1
+    rule_evaluations: 1000
+  aws_autoscaling_group.app:
+    instances: 1
+    operating_system: linux
+  aws_db_instance.app:
+    additional_backup_storage_gb: 0
+    monthly_standard_io_requests: 100000
+  aws_s3_bucket.app:
+    standard:
+      storage_gb: 1
+      monthly_tier_1_requests: 1000
+      monthly_tier_2_requests: 1000

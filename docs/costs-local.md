@@ -63,6 +63,6 @@ docker compose down
 
 `compose down` no borra el volumen `localstack_data` salvo `docker compose down -v`. En local eso no factura; en aws, un destroy incompleto sí.
 
-## Etapa aws (todavía no)
+## Etapa aws
 
-Cuando exista `iac/aws`, este documento no aplica: habrá presupuesto, tags de costo, backend con lock y revisión del SG `0.0.0.0/0` antes del apply.
+Ver [costs-aws.md](./costs-aws.md). Infracost cotiza `iac/aws`, no este stack.

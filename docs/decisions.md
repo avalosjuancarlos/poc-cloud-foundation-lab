@@ -167,7 +167,7 @@ Resultado: Documentado. Runbook en A10; Budget en A2.
 
 ### 011 — Infracost cotiza `iac/aws`, no `iac/local`
 
-Decision: La fuente de [costs-aws.md](./costs-aws.md) es `infracost breakdown --path iac/aws` (usage en `iac/aws/infracost.yml`). Prohibido usar Infracost sobre `iac/local`: Community no factura y el HCL se cotizaría como AWS real. `INFRACOST_API_KEY` solo en el entorno. A las ~48 h de un apply, contrastar con Cost Explorer. `02_apply` muestra el breakdown y pide confirmación antes de aplicar.
+Decision: La fuente de [costs-aws.md](./costs-aws.md) es `infracost scan` (CLI v2; `breakdown` es alias) con config `infracost.yml` y usage `iac/aws/infracost-usage.yml`. Prohibido usar Infracost sobre `iac/local`: Community no factura y el HCL se cotizaría como AWS real. Login/`INFRACOST_API_KEY` solo en el host. A las ~48 h de un apply, contrastar con Cost Explorer. `02_apply` muestra el breakdown y pide confirmación antes de aplicar.
 
 Contexto: Infracost lee el HCL y la price list; es reproducible y atado a *este* diseño. Buscar precios online sirvió para elegir región (ADR 006) antes de existir `iac/aws`. LCU del ALB y data transfer requieren usage file o quedan subestimados. Free tier y descuentos de cuenta no aparecen.
 
@@ -176,6 +176,6 @@ Alternativas:
 2. Solo Cost Explorer — es *después* del gasto.
 3. Cotizar también `iac/local` — confunde USD 0 local con EC2 real.
 
-Tradeoff: Estimación, no factura. Hay que mantener `infracost.yml`.
+Tradeoff: Estimación, no factura. Hay que mantener `infracost.yml` y `infracost-usage.yml`.
 
-Resultado: Documentado. Ejecución en A7; doc en A10.
+Resultado: Ejecutado en A7 con Infracost v2.16.1 del host (`infracost scan` → USD 34.88 / 30 d, con LCU y S3 desde usage). Config `infracost.yml` (solo `iac/aws`); usage en `iac/aws/infracost-usage.yml`. IPv4 autoasignado se documenta a mano. `02_apply` (A8) reutiliza el script.

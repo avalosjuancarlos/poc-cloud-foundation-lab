@@ -65,4 +65,10 @@ terraform -chdir=iac/aws init
 
 ## 7. Infracost
 
-Solo `--path iac/aws` (ADR 011), después de A6. Nunca sobre `iac/local` ni sobre `bootstrap` como si fuera el lab de 8 h (el Budget y el state bucket sí tienen costo mínimo).
+CLI **en el host** (v2.16: `infracost scan` desde la raíz). No hace falta el devcontainer.
+
+```bash
+./scripts/aws/infracost.sh
+```
+
+Config `infracost.yml` (solo `iac/aws`) + usage `iac/aws/infracost-usage.yml`. Nunca `iac/local`. Tabla: [docs/costs-aws.md](../../docs/costs-aws.md). Login en el host, no en git.

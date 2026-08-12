@@ -38,3 +38,6 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+
+# Infracost (cache local; la API key / login no van a git)
+.infracost/

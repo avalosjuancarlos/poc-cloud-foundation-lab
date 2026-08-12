@@ -1,0 +1,12 @@
+# Infracost v2.16 — config (ADR 011). Solo el stack de aplicación AWS.
+# No agregar iac/local. No tratar bootstrap como la factura del lab de 8 h.
+#
+#   ./scripts/aws/infracost.sh
+#   infracost scan
+#
+# Login en el host (`infracost auth`). No hay API key en git.
+version: "0.3"
+usage_file: iac/aws/infracost-usage.yml
+projects:
+  - path: iac/aws
+    name: poc-cloud-foundation-lab-aws
