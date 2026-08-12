@@ -4,93 +4,78 @@ Proyecto integrador del módulo Cloud Computing (ITBA).
 
 > **Integrantes:** _completar con los miembros del grupo_
 
-Arquitectura base: VPC + IAM + S3 + Cómputo + Base de datos, todo en LocalStack/Docker (local-first), con AWS real como referencia.
+Etapa actual: **LocalStack Community** (local-first). VPC + IAM + S3 + EC2 emulado. AWS real es otra carpeta (`iac/aws`), todavía no.
+
+El apply canónico es `iac/local`, no `app/`. `app/` es el sample de Packt contra AWS real (`eu-west-1`): no lo apliques (costo + SG abierto).
 
 ---
 
-## Cómo arrancar
+## Cómo correrlo end-to-end
 
-### Opción A — GitHub "Use this template" (recomendado)
-
-1. Click en **"Use this template"** arriba a la derecha de este repo
-2. Elegí nombre y dueño del repo nuevo (puede ser una organización del grupo)
-3. Cloná el repo nuevo a tu máquina o abrilo en Codespaces
-4. Corré `bin/init.sh "Tu Proyecto"` para personalizar README y docs
-5. Listo: arrancá agregando servicios al `compose.yaml`
-
-### Opción B — Cookiecutter / script local
-
-Si preferís hacerlo desde la CLI sin pasar por la UI de GitHub:
+Todo en el **devcontainer** (rebuild si acabás de clonar). Compose levanta LocalStack al start; Terraform y pytest viven en el contenedor.
 
 ```bash
-# Cloná el starter
-git clone https://github.com/<owner>/proyecto-final-starter.git mi-proyecto
-cd mi-proyecto
+./scripts/local/01_up.sh        # LocalStack healthy en :4566
+./scripts/local/02_apply.sh     # terraform apply en iac/local
+./scripts/local/03_verify.py    # VPC, EC2, rol, bucket por tag
+python3 -m pytest               # IAM siempre; smoke si el stack está aplicado
+```
 
-# Borrá la historia del template
-rm -rf .git
+Segunda corrida de `02_apply` / `03_verify`: idempotente (0 creates).
 
-# Personalizá
-./bin/init.sh "Mi Proyecto"
+**Éxito:** recursos visibles en la API de LocalStack.  
+**No es éxito:** abrir `http://<public_ip>/phpinfo.php`. Community no ejecuta `user-data.sh` ([ADR 004](docs/decisions.md)).
 
-# Arrancá un repo nuevo
-git init && git add . && git commit -m "init: proyecto final desde starter"
+Si el smoke de pytest dice que no hay VPC/instancia/rol: el control plane está vacío. Corré `02_apply.sh` y repetí `pytest` ([tests/local/README.md](tests/local/README.md)).
 
-# (opcional) creá el repo en GitHub
-gh repo create mi-proyecto --source=. --private --push
+Destroy del stack local:
+
+```bash
+terraform -chdir=iac/local destroy
 ```
 
 ---
 
-## Qué incluye el starter
-
-Solo estructura — sin servicios pre-armados. Vos elegís qué levantar y dónde.
+## Layout
 
 ```
 .
-├── .devcontainer/         # Codespaces listo: postgres-client, aws-cli, docker-in-docker
-├── compose.yaml           # Esqueleto vacío (services: {})
+├── .devcontainer/          # Python 3.12, Docker-in-Docker, AWS CLI, Terraform 1.15.8
+├── compose.yaml            # LocalStack Community 4.14.0 (:4566)
+├── app/                    # Baseline Packt (no apply)
+├── iac/local/              # Terraform contra LocalStack
+├── iam/local/              # Trust + identity + bucket policy
+├── scripts/local/          # 01_up, 02_apply, 03_verify
+├── tests/local/            # pytest (correr en el devcontainer)
 ├── docs/
-│   ├── architecture.md    # Plantilla con tablas vacías
-│   └── decisions.md       # Formato ADR
-├── iam/
-│   ├── trust_policy.json  # Único molde reutilizable (EC2 assume role)
-│   └── README.md
-├── scripts/
-│   └── README.md          # Guía de convenciones (idempotencia, no secretos)
-├── iac/
-│   ├── main.tf            # Donde van tus recursos
-│   ├── variables.tf       # project_name, environment, region
-│   ├── outputs.tf
-│   └── providers/
-│       ├── aws-local.tf.example     # AWS contra LocalStack
-│       ├── azure-local.tf.example   # Azure contra Azurite
-│       └── gcp-local.tf.example     # GCP contra emuladores
-├── requirements.txt       # boto3, psycopg2, awscli-local, pytest
-├── bin/init.sh            # Personaliza el starter con tu proyecto
-└── .gitignore
+│   ├── architecture.md
+│   └── decisions.md
+└── requirements.txt
 ```
 
-Mirar `iac/README.md` para elegir provider local.
+Detalle: [docs/architecture.md](docs/architecture.md) · [iac/local/README.md](iac/local/README.md) · [scripts/local/README.md](scripts/local/README.md)
 
 ---
 
 ## Checklist del proyecto
 
-Al final del módulo, este repo debería tener:
+Etapa local:
 
-- [ ] `docs/architecture.md` con tu diagrama y componentes
-- [ ] `docs/decisions.md` con al menos 5 decisiones documentadas (ADR)
-- [ ] `iam/` con los JSON de tu solución (trust + policies + bucket policy)
-- [ ] `scripts/` con al menos 3 demos automatizados (idempotentes)
-- [ ] `compose.yaml` con los servicios que tu arquitectura usa
-- [ ] Tests unitarios (`pytest` pasa)
-- [ ] README explicando cómo correrlo end-to-end
+- [x] `docs/architecture.md` con diagrama y componentes
+- [x] `docs/decisions.md` con al menos 5 ADR
+- [x] `iam/` con trust + policies + bucket policy (`iam/local/`)
+- [x] `scripts/` con al menos 3 demos idempotentes (`scripts/local/`)
+- [x] `compose.yaml` con LocalStack
+- [x] Tests (`pytest` en el devcontainer)
+- [x] README explicando cómo correrlo end-to-end
+
+Pendiente de etapas siguientes: stack `*/aws`, RDS, doc de costos (`docs/costs-local.md`).
 
 ---
 
 ## Referencias del curso
 
 - Repo de demos por clase: [cloud-foundations-lab](https://github.com/maxflorentin/cloud-foundations-lab)
-- AWS Academy Cloud Architecting (Spanish LATAM): los módulos cubren la teoría
-- `cloud-foundations-lab` tiene labs 04 (IAM), 05 (EC2), 06 (S3), 07 (VPC), 08 (RDS) — usar como referencia
+- AWS Academy Cloud Architecting (Spanish LATAM)
+- Labs 04 (IAM), 05 (EC2), 06 (S3), 07 (VPC), 08 (RDS)
+- Sample Packt en `app/`: [Building Resilient Architectures on AWS](https://github.com/PacktPublishing/Building-Resilient-Architectures-on-AWS)
