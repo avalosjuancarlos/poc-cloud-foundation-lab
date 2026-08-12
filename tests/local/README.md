@@ -7,6 +7,8 @@ Correr **dentro del devcontainer**, no en el host. Ahí están `pytest`, boto3 y
 python3 -m pytest
 ```
 
+También corre `tests/aws` (IAM siempre; smoke AWS skip sin profile).
+
 - Políticas IAM: siempre (JSON / templates renderizados).
 - Smoke boto3: se salta si LocalStack no está healthy. Compose lo levanta; **no aplica** Terraform.
 - No hay test de HTTP/phpinfo (ADR 004).

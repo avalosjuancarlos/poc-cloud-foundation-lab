@@ -44,7 +44,7 @@
         "terminal.integrated.defaultProfile.linux": "bash",
         "python.testing.pytestEnabled": true,
         "python.testing.unittestEnabled": false,
-        "python.testing.pytestArgs": ["tests/local"]
+        "python.testing.pytestArgs": ["tests"]
       }
     }
   }
