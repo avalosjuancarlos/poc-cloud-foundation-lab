@@ -1,12 +1,15 @@
 # `iam/` — políticas y trust documents del proyecto
 
-Acá van los JSON que defina tu solución:
+JSON versionados por stack (ADR 001 / 002). Terraform no es la fuente de las policies: las referencia.
 
-- **Trust policies** — quién puede asumir un rol (ej. EC2, Lambda, ECS task)
-- **Identity policies** — qué puede hacer una identidad (usuario/rol/grupo)
-- **Resource policies** — qué identidades dejá entrar un recurso (ej. bucket policy)
+- **`local/`** — etapa LocalStack (la que se aplica ahora)
+- **`aws/`** — etapa AWS real (todavía no)
 
-`trust_policy.json` arranca como ejemplo molde (rol asumible por EC2). Modificá / borrá / agregá lo que necesite tu arquitectura.
+Tipos de documento:
+
+- **Trust policies** — quién puede asumir un rol (ej. EC2)
+- **Identity policies** — qué puede hacer esa identidad (privilegio mínimo)
+- **Resource policies** — qué identidades deja entrar un recurso (bucket policy)
 
 Referencias en el lab del curso:
 - Lab 04 — `iam/s3_read_policy.json` muestra una identity policy de privilegio mínimo
