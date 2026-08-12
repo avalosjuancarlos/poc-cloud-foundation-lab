@@ -41,3 +41,6 @@ terraform.rc
 
 # Infracost (cache local; la API key / login no van a git)
 .infracost/
+
+# Devcontainer (lock generado en rebuild; no es fuente de verdad)
+.devcontainer/devcontainer-lock.json
