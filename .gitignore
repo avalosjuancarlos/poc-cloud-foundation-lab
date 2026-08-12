@@ -26,6 +26,8 @@ data/processed/**
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+tfplan
+*.tfplan
 crash.log
 crash.*.log
 override.tf

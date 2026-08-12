@@ -1,10 +1,13 @@
 # `scripts/` — demos automatizados del proyecto
 
-Acá van los scripts (Python o shell) que orquestan tu solución end-to-end.
+Orquestación end-to-end, agrupada por stack (ADR 002 / 005).
 
-Convenciones que vienen del curso:
+- **`local/`** — etapa LocalStack (los tres demos del checklist viven acá)
+- **`aws/`** — etapa AWS real (todavía no)
+
+Convenciones del curso:
 - **Idempotentes** — se pueden correr dos veces sin romper
-- **Sin secretos hardcodeados** — leen credenciales del entorno o de Secrets Manager
+- **Sin secretos hardcodeados** — leen credenciales del entorno
 - **Auto-documentados** — el output narra qué se hizo y dónde quedó
 
 Referencias en el lab del curso:
