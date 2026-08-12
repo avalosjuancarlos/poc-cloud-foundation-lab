@@ -1,11 +1,26 @@
-# Servicios del proyecto.
-# Agregá acá los que tu arquitectura necesite.
-# Referencias en los labs del curso (cloud-foundations-lab):
-#   - postgres (lab 02)
-#   - minio (lab 02)
-#   - localstack (lab 04+)
-#   - redis, redpanda (labs siguientes)
+# Entorno local (ADR 002): LocalStack Community.
+# AWS real no usa este archivo.
+# Referencia de labs: cloud-foundations-lab (lab 04+).
 
-services: {}
+services:
+  localstack:
+    image: localstack/localstack:4.14.0
+    container_name: poc-cloud-foundation-localstack
+    ports:
+      - "127.0.0.1:4566:4566"
+    environment:
+      SERVICES: ec2,iam,sts,s3
+      DEBUG: "0"
+      AWS_DEFAULT_REGION: us-east-1
+      PERSISTENCE: "1"
+    volumes:
+      - localstack_data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
-volumes: {}
+volumes:
+  localstack_data:
