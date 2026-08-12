@@ -35,7 +35,11 @@ Crea: bucket de state (versionado, cifrado, sin acceso público), tabla DynamoDB
 
 **No hagas destroy del bootstrap** salvo que sepas que no queda state remoto.
 
-## 3. Backend del stack de aplicación
+## 3. Red (A4)
+
+`network.tf`: VPC `10.0.0.0/16`, dos públicas (`10.0.0.0/24`, `10.0.1.0/24`) con IGW, dos privadas (`10.0.10.0/24`, `10.0.11.0/24`) **sin** NAT. RDS (A5) y ALB/ASG (A6) usan estos outputs.
+
+## 4. Backend del stack de aplicación
 
 Cuando existan red/RDS/ALB (A4–A6):
 
@@ -47,6 +51,6 @@ terraform -chdir=iac/aws init
 
 `terraform.tfvars` y `backend.tf` no se commitean (gitignore).
 
-## 4. Infracost
+## 5. Infracost
 
 Solo `--path iac/aws` (ADR 011), después de A6. Nunca sobre `iac/local` ni sobre `bootstrap` como si fuera el lab de 8 h (el Budget y el state bucket sí tienen costo mínimo).

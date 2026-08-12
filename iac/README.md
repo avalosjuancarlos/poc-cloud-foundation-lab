@@ -7,7 +7,8 @@ iac/
 ├── local/                 ← LocalStack
 ├── aws/
 │   ├── bootstrap/         ← state S3 + lock DynamoDB + Budget (A2)
-│   └── …                  ← VPC/ALB/RDS (A4–A6)
+│   ├── network.tf         ← VPC 2 AZ, públicas + privadas, sin NAT (A4)
+│   └── …                  ← RDS/S3 (A5), ALB/ASG (A6)
 ├── providers/
 ├── main.tf                ← no aplicar desde acá
 ├── variables.tf
