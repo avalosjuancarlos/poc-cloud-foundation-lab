@@ -29,7 +29,7 @@ Alternativas:
 
 Tradeoff: Se duplican carpetas y hay que mantener dos árboles. A cambio, un `apply` en `iac/local` no puede pegarle a AWS real, y `iac/aws` no queda atado a los límites de Community.
 
-Resultado: Decisión documentada. Esta etapa implementa solo `*/local`. `*/aws` queda fuera de alcance hasta la migración.
+Resultado: `*/local` implementado (P1–P9). `*/aws` se implementa en esta etapa (A1–A10); no comparte módulos con local.
 
 ### 002 — El proyecto se agrupa por entorno bajo las carpetas del starter
 
@@ -43,7 +43,7 @@ Alternativas:
 
 Tradeoff: Un nivel más de carpetas. El README E2E tiene que decir `scripts/local/...` y `terraform -chdir=iac/local`.
 
-Resultado: Decisión documentada. Las carpetas `*/local` se crean en las tareas de implementación (IAM, IaC, scripts, tests), no en este ADR.
+Resultado: `iam/local`, `scripts/local` y `tests/local` existen. `*/aws` se agrega en A3/A8/A9.
 
 ### 003 — `app/` es el baseline Packt, no el stack que se aplica
 
@@ -88,4 +88,94 @@ Alternativas:
 
 Tradeoff: Hay que interpolar ARNs (account LocalStack `000000000000` vs cuenta real después). En Community algunas condiciones (`aws:SecureTransport`) pueden no aplicarse; se dejan igual como intención para AWS.
 
-Resultado: Decisión documentada. Archivos concretos en las tareas P4 (IAM), P6 (scripts) y P7 (tests).
+Resultado: Decisión documentada. Archivos concretos en P4 (IAM), P6 (scripts) y P7 (tests). El equivalente AWS vive en `iam/aws` y `scripts/aws` (ADR 002).
+
+### 006 — Región us-east-1 para el stack AWS
+
+Decision: `iac/aws` se despliega en `us-east-1` (N. Virginia), AZs `us-east-1a` y `us-east-1b`. No se usa `eu-west-1` (sample Packt) ni `sa-east-1` (São Paulo).
+
+Contexto: El lab se opera desde Argentina unas pocas horas. FinOps: `t3.nano` on-demand ≈ USD 0.0052/h en us-east-1 vs ≈ 0.0084 en sa-east-1 y ≈ 0.0057 en eu-west-1. DevOps: us-east-1 tiene más AZs, más tipos de instancia, AWS Academy y ejemplos de Terraform. sa-east-1 mejora RTT al Cono Sur, irrelevante si no hay usuarios productivos en LATAM.
+
+Alternativas:
+1. sa-east-1 — menor latencia, ~60% más caro en nano; menos AZs.
+2. eu-west-1 — fidelidad al libro Packt; no es la región más barata ni la de Academy.
+3. us-east-2 / us-west-2 — precio similar a N. Virginia; menos “default” en docs.
+
+Tradeoff: Más latencia que São Paulo. A cambio: costo mínimo, 6 AZs, mejor soporte de APIs.
+
+Resultado: Documentado. El provider y las subnets de `iac/aws` (A4) deben fijar esta región.
+
+### 007 — Sin NAT Gateway; app pública detrás de ALB, RDS privada
+
+Decision: Las instancias del ASG viven en subnets **públicas** (egress por Internet Gateway, user-data/yum). RDS en subnets **privadas** sin `publicly_accessible`. El security group de las EC2 solo admite tráfico del SG del ALB (no `0.0.0.0/0:80` en la instancia). No se crea NAT Gateway ni NAT instance.
+
+Contexto: Un NAT Gateway en us-east-1 ronda USD 32/mes + data processing, más que el resto del lab junto. Las EC2 en subnet pública pueden llegar a RDS por ruteo VPC (IP privada) sin NAT. El ALB es el único origen HTTP.
+
+Alternativas:
+1. Private subnet + NAT GW — modelo “fortaleza”; costo inaceptable en lab.
+2. NAT instance t3.nano — más barato, más operativo y otro SPOF.
+3. Egress-only IPv6 — complejidad fuera de alcance.
+
+Tradeoff: Las EC2 tienen IP pública (hay que cobrar IPv4 y endurecer SG/IMDSv2). Se evita el cargo fijo del NAT.
+
+Resultado: Documentado. Red en A4; cómputo en A6.
+
+### 008 — RDS PostgreSQL db.t4g.micro Single-AZ
+
+Decision: El estado deja de vivir en la EC2 (MariaDB del user-data Packt). Base: Amazon RDS PostgreSQL `db.t4g.micro`, 20 GB gp3, `multi_az = false` por default. Variable documentada para Multi-AZ; no es el default del lab.
+
+Contexto: El checklist del curso apunta al lab 08 (RDS). Colocar la DB en la misma VM es el SPOF que el libro de resiliencia quiere romper. Multi-AZ duplica el costo de RDS. Graviton (`t4g`) es más barato que `db.t3.micro` en us-east-1.
+
+Alternativas:
+1. MariaDB/MySQL en la EC2 — fiel a Packt; peor resiliencia y FinOps.
+2. RDS Multi-AZ de entrada — mejor RTO/RPO; ~2× precio.
+3. Aurora Serverless v2 — overkill y factura menos predecible para un lab de 8 h.
+
+Tradeoff: Single-AZ sigue siendo SPOF de AZ para datos. Sigue siendo mejor que DB en el compute. El apply efímero (ADR 010) limita la ventana de riesgo.
+
+Resultado: Documentado. Recursos en A5.
+
+### 009 — Profile `poc-aws`; no mezclar con LocalStack
+
+Decision: El apply AWS usa un named profile (`poc-aws`), `tfvars` no commiteados (solo `.example`), y backend S3 + DynamoDB lock en us-east-1. Los scripts `scripts/aws` hacen `unset AWS_ENDPOINT_URL` (y no usan keys `test`). Nunca `terraform apply` desde `app/`.
+
+Contexto: El devcontainer exporta `AWS_ENDPOINT_URL=http://localhost:4566` y credenciales dummy para LocalStack. boto3/AWS CLI respetan esa variable: un verify AWS sin unset pega al emulador. Keys en git o profile `default` mezclado son el incidente FinOps/DevSecOps típico.
+
+Alternativas:
+1. Un segundo devcontainer solo AWS — más aislamiento, más fricción.
+2. OIDC/IAM Identity Center desde el día uno — correcto en prod; para el lab un profile alcanza.
+3. Credenciales en `terraform.tfvars` commiteado — prohibido.
+
+Tradeoff: Hay que configurar el profile a mano una vez. A cambio, local y aws no se pisan.
+
+Resultado: Documentado. Guardrails en A2; scripts en A8.
+
+### 010 — Apply efímero y Budget
+
+Decision: ASG `desired_capacity = 1` (max 2). El runbook es apply → demo → `terraform destroy` el mismo día. Alarma AWS Budget (orden USD 5) al mail del grupo. Tags `Project`, `Environment=aws`, `ManagedBy=terraform`.
+
+Contexto: ALB + RDS + IPv4 olvidados 30 días ≈ USD 36–40. El lab no necesita HA 24/7. Infracost da el mensual; el Budget cubre el olvido.
+
+Alternativas:
+1. Dejar el stack prendido “para la defensa” — costo y superficie.
+2. Instance Scheduler / stop nocturno — extra IaC; destroy es más simple.
+3. Savings Plans — no cierran en un lab de horas.
+
+Tradeoff: No hay resiliencia continua. Hay control de factura.
+
+Resultado: Documentado. Runbook en A10; Budget en A2.
+
+### 011 — Infracost cotiza `iac/aws`, no `iac/local`
+
+Decision: La fuente de [costs-aws.md](./costs-aws.md) es `infracost breakdown --path iac/aws` (usage en `iac/aws/infracost.yml`). Prohibido usar Infracost sobre `iac/local`: Community no factura y el HCL se cotizaría como AWS real. `INFRACOST_API_KEY` solo en el entorno. A las ~48 h de un apply, contrastar con Cost Explorer. `02_apply` muestra el breakdown y pide confirmación antes de aplicar.
+
+Contexto: Infracost lee el HCL y la price list; es reproducible y atado a *este* diseño. Buscar precios online sirvió para elegir región (ADR 006) antes de existir `iac/aws`. LCU del ALB y data transfer requieren usage file o quedan subestimados. Free tier y descuentos de cuenta no aparecen.
+
+Alternativas:
+1. Solo calculadora AWS a mano — se desactualiza al cambiar el `.tf`.
+2. Solo Cost Explorer — es *después* del gasto.
+3. Cotizar también `iac/local` — confunde USD 0 local con EC2 real.
+
+Tradeoff: Estimación, no factura. Hay que mantener `infracost.yml`.
+
+Resultado: Documentado. Ejecución en A7; doc en A10.

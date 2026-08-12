@@ -1,10 +1,12 @@
 # Arquitectura — poc-cloud-foundation-lab
 
-Etapa documentada: **local** (LocalStack Community). El stack AWS real se describe cuando exista `iac/aws`. Decisiones: [decisions.md](./decisions.md).
+Dos stacks (ADR 001): **local** (LocalStack Community) y **aws** (`us-east-1`, ADR 006). Decisiones: [decisions.md](./decisions.md). Costos: [costs-local.md](./costs-local.md) · [costs-aws.md](./costs-aws.md) (este último se llena en A10 con Infracost).
 
-## Diagrama
+---
 
-Stack local: el devcontainer habla con LocalStack en `localhost:4566`. Terraform aplica el grafo VPC → EC2 (API) + IAM + S3. Community no bootea la VM; `user-data.sh` viaja en la API y no se ejecuta.
+## Stack local (hecho)
+
+El devcontainer habla con LocalStack en `localhost:4566`. Terraform aplica VPC → EC2 (API) + IAM + S3. Community no bootea la VM; `user-data.sh` viaja en la API y no se ejecuta.
 
 ```mermaid
 flowchart TB
@@ -45,42 +47,80 @@ flowchart TB
   vpc --> ec2
 ```
 
-## Componentes
-
 | Componente local | Equivalente cloud | Identidad / credencial |
 |---|---|---|
-| Devcontainer (Docker-in-Docker, AWS CLI, Terraform) | Workstation / CI | Sin keys reales; `AWS_EC2_METADATA_DISABLED=true` |
-| `compose.yaml` → LocalStack `:4566` | Control plane AWS (región `us-east-1` emulada) | `test` / `test` (LocalStack las ignora) |
-| `iac/local` Terraform | CloudFormation / Terraform contra la cuenta | Provider con endpoints a LocalStack; state en disco (gitignore) |
-| `iam/local/trust_policy.json` | Trust del rol de instancia | Principal `ec2.amazonaws.com` |
-| `iam/local` identity + bucket policy | IAM identity policy + S3 resource policy | Rol de instancia; account emulada `000000000000` |
-| `aws_instance` en LocalStack | EC2 Amazon Linux 2 | Instance profile; sin access keys en la VM |
-| `app/user-data.sh` (referenciado, no ejecutado) | Bootstrap LAMP + phpinfo | N/A en Community |
-| Bucket S3 en LocalStack | S3 de config/logs del proyecto | Bucket policy con Principal = rol |
-| `scripts/local` | Runbooks / pipeline de apply | Idempotentes; credenciales de entorno dummy |
+| Devcontainer | Workstation / CI | Dummy `test`/`test`; `AWS_ENDPOINT_URL=:4566` |
+| LocalStack `:4566` | Control plane AWS | Account emulada `000000000000` |
+| `iac/local` | Terraform cuenta real | Endpoints LocalStack; state en disco |
+| `iam/local` | IAM + bucket policy | Rol de instancia |
+| EC2 mock | Amazon Linux | user-data no corre (ADR 004) |
 
-## Puntos únicos de falla identificados
+---
 
-El sample Packt es deliberadamente frágil (una AZ, un instance, DB en la misma VM). En local el SPOF es de **modelo**, no de runtime: no hay VM ni MariaDB escuchando.
+## Stack aws (esta etapa)
 
-| SPOF | Mitigación en cloud (etapa aws, no ahora) |
-|---|---|
-| Una AZ (`us-east-1a` emulada) | Subnets en ≥2 AZ |
-| Una EC2, sin ASG ni ALB | ASG + load balancer; health checks |
-| MariaDB en la misma instancia (user-data Packt) | RDS Multi-AZ; no colocalizar estado en el compute |
-| SG `0.0.0.0/0:80` | Restringir origen; TLS; WAF si aplica |
-| `phpinfo.php` expuesto | No desplegar info-disclosure; app real detrás de ALB |
-| LocalStack como único control plane | No aplica en local; en aws el SPOF pasa a la cuenta/región |
-| State Terraform en disco del devcontainer | Backend S3 + lock DynamoDB en etapa aws |
+Región `us-east-1`, AZs `a` y `b`. Internet → ALB (subnets públicas) → ASG `t3.nano` (públicas, SG solo desde el ALB) → RDS PostgreSQL privada. S3 vía instance profile. Sin NAT Gateway (ADR 007). Infracost cotiza este HCL, no el local (ADR 011).
+
+```mermaid
+flowchart TB
+  users["HTTPS/HTTP clientes"]
+  alb["ALB public subnets 1a+1b"]
+  asg["ASG t3.nano desired=1"]
+  rds["RDS PostgreSQL t4g.micro private"]
+  s3["S3 bucket"]
+  iamaws["iam/aws JSON"]
+  tfaws["Terraform iac/aws"]
+  infracost["Infracost --path iac/aws"]
+
+  users --> alb
+  alb --> asg
+  asg --> rds
+  asg --> s3
+  iamaws --> asg
+  iamaws --> s3
+  tfaws --> alb
+  tfaws --> asg
+  tfaws --> rds
+  tfaws --> s3
+  infracost -.-> tfaws
+```
+
+| Componente aws | Rol | Identidad / credencial |
+|---|---|---|
+| Profile `poc-aws` | Apply humano | Named profile; `unset AWS_ENDPOINT_URL` (ADR 009) |
+| `iac/aws` | VPC 2 AZ, ALB, ASG, RDS, S3 | Backend S3 + DynamoDB lock |
+| `iam/aws` | Trust EC2, policy app, bucket policy | Principal = rol; TLS deny en bucket |
+| ALB | Único origen HTTP público | SG del ALB abre 80 (443 si hay cert) |
+| ASG t3.nano | Cómputo; user-data sí corre | Instance profile; SG solo desde ALB |
+| RDS PostgreSQL | Estado fuera de la EC2 | SG solo desde SG de las instancias |
+| Infracost | Estimación pre-apply | `INFRACOST_API_KEY` en el host, no en git |
+
+Criterio de éxito aws: ALB DNS responde (phpinfo o health). Destroy el mismo día (ADR 010).
+
+---
+
+## Puntos únicos de falla
+
+El sample Packt es frágil (1 AZ, 1 instance, DB en la VM). Local solo modela eso. AWS mitiga parte; RDS sigue Single-AZ a propósito (ADR 008).
+
+| SPOF | Local | Mitigación aws |
+|---|---|---|
+| Una AZ | Modelo emulado | Subnets en 1a y 1b; RDS Single-AZ (Multi-AZ opt-in) |
+| Una EC2 | Un `aws_instance` mock | ALB + ASG (desired 1, max 2) |
+| DB en el compute | user-data MariaDB (no corre) | RDS PostgreSQL privada |
+| SG `0.0.0.0/0:80` en la instancia | Demo local | Solo el SG del ALB llega a las EC2 |
+| State en disco | gitignore local | Backend S3 + lock |
+| NAT como SPOF/costo | N/A | No hay NAT (ADR 007) |
 
 ## Decisiones de identidad
 
-- **Servicio a servicio:** la EC2 no lleva access keys. Asume un rol vía instance profile (`iam/local/trust_policy.json`). El bucket solo acepta ese rol (`bucket_policy.json`).
-- **Quién puede qué:** identity policy de privilegio mínimo sobre el bucket del proyecto (no `s3:*` global). En Community las condiciones extra (p. ej. `aws:SecureTransport`) pueden ignorarse; se documentan igual como intención para AWS.
-- **Credenciales humanas / CLI:** dummy `test`/`test` contra `:4566`. No hay rotación: no son secretos. En aws: OIDC o profile; nunca keys en el repo.
-- **Apply:** solo `iac/local` + `scripts/local`. `app/main.tf` (Packt, `eu-west-1` real) no forma parte del camino E2E.
+- **Local:** dummy `test`/`test` → `:4566`. Instance profile en la API.
+- **AWS:** profile `poc-aws`. Scripts hacen unset de `AWS_ENDPOINT_URL`. La EC2 no lleva keys; asume rol. Bucket policy con Principal=rol y deny sin TLS.
+- **Apply Packt `app/`:** prohibido (eu-west-1 real, SG abierto, costo).
 
-## Alcance de esta etapa
+## Alcance
 
-- Sí: API LocalStack (VPC, EC2 mock, IAM, S3), Compose, scripts, tests, [doc de costos](./costs-local.md).
-- No: phpinfo en el navegador, RDS, multi-AZ, backend remoto, `iac/aws`.
+| | Local | AWS (A1–A10) |
+|---|---|---|
+| Sí | API LocalStack, Compose, scripts/tests, [costs-local](./costs-local.md) | Diagrama + ADR 006–011 ahora; IaC/IAM/scripts/Infracost en A2–A10 |
+| No | phpinfo real, RDS, NAT | NAT GW, RDS Multi-AZ default, `app/` como apply |
