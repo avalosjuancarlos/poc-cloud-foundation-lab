@@ -2,8 +2,8 @@
 
 JSON versionados por stack (ADR 001 / 002). Terraform no es la fuente de las policies: las referencia.
 
-- **`local/`** — etapa LocalStack (la que se aplica ahora)
-- **`aws/`** — etapa AWS real (todavía no)
+- **`local/`** — LocalStack
+- **`aws/`** — AWS real (`us-east-1`; incluye Deny TLS en el bucket)
 
 Tipos de documento:
 

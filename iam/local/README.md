@@ -10,4 +10,4 @@ Terraform en `iac/local` las consume con `file()` / `templatefile()` (ADR 005). 
 
 `${bucket_name}` y `${role_arn}` los interpola Terraform en el apply.
 
-No se incluye `Deny` por `aws:SecureTransport`: LocalStack habla HTTP en `:4566`. Esa condición va en `iam/aws` cuando exista.
+No se incluye `Deny` por `aws:SecureTransport`: LocalStack habla HTTP en `:4566`. Esa condición está en `iam/aws`.
