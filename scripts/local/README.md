@@ -10,4 +10,10 @@ Idempotentes, sin secretos en el código. Credenciales dummy salen del entorno d
 
 Correr 02 y 03 dos veces no debe crear recursos de más ni fallar.
 
+Tests (también en el **devcontainer**):
+
+```bash
+python3 -m pytest
+```
+
 `03_verify.py` no hace HTTP al `public_ip` (ADR 004).
