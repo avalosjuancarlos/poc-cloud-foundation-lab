@@ -1,4 +1,4 @@
-# {{PROJECT_NAME}}
+# poc-cloud-foundation-lab
 
 Proyecto integrador del módulo Cloud Computing (ITBA).
 

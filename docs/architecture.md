@@ -1,4 +1,4 @@
-# Arquitectura — {{PROJECT_NAME}}
+# Arquitectura — poc-cloud-foundation-lab
 
 ## Diagrama
 
