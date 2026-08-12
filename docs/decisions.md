@@ -118,7 +118,7 @@ Alternativas:
 
 Tradeoff: Las EC2 tienen IP pública (hay que cobrar IPv4 y endurecer SG/IMDSv2). Se evita el cargo fijo del NAT.
 
-Resultado: Documentado. Red en A4; cómputo en A6.
+Resultado: Implementado. Red en A4; ALB+ASG en A6 (`alb.tf`, `compute.tf`). IMDSv2 required; sin puerto 22.
 
 ### 008 — RDS PostgreSQL db.t4g.micro Single-AZ
 

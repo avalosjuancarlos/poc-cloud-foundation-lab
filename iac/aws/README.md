@@ -45,7 +45,13 @@ S3 (AES256, public access block, bucket policy con Deny TLS) + IAM instance prof
 
 `db_multi_az = true` está en variables; no es el default (ADR 008).
 
-## 5. Backend del stack de aplicación
+## 5. Cómputo (A6)
+
+ALB público (HTTP 80) + ASG `t3.nano` desired 1 / max 2 en subnets públicas. SG de instancias solo desde el SG del ALB. IMDSv2 obligatorio. Sin key pair. User-data propio (`user-data.sh`): httpd + phpinfo + `/health`; **no** copia `app/user-data.sh` (ese instala MariaDB en la VM).
+
+Éxito: `http://<alb_dns_name>/health` y `/phpinfo.php`. Destroy el mismo día (ADR 010).
+
+## 6. Backend del stack de aplicación
 
 Cuando existan red/RDS/ALB (A4–A6):
 
@@ -57,6 +63,6 @@ terraform -chdir=iac/aws init
 
 `terraform.tfvars` y `backend.tf` no se commitean (gitignore).
 
-## 6. Infracost
+## 7. Infracost
 
 Solo `--path iac/aws` (ADR 011), después de A6. Nunca sobre `iac/local` ni sobre `bootstrap` como si fuera el lab de 8 h (el Budget y el state bucket sí tienen costo mínimo).

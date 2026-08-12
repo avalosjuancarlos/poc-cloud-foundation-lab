@@ -96,3 +96,32 @@ variable "db_username" {
   description = "Master user. No usar postgres (reservado)."
   default     = "appadmin"
 }
+
+variable "instance_type" {
+  type        = string
+  description = "Tipo de instancia del ASG (ADR 010)."
+  default     = "t3.nano"
+}
+
+variable "asg_min_size" {
+  type        = number
+  description = "Mínimo del ASG."
+  default     = 1
+}
+
+variable "asg_max_size" {
+  type        = number
+  description = "Máximo del ASG (ADR 010)."
+  default     = 2
+}
+
+variable "asg_desired_capacity" {
+  type        = number
+  description = "Desired del ASG. 1 para el lab (ADR 010)."
+  default     = 1
+
+  validation {
+    condition     = var.asg_desired_capacity >= 1 && var.asg_desired_capacity <= 2
+    error_message = "desired_capacity del lab debe estar entre 1 y 2 (ADR 010)."
+  }
+}

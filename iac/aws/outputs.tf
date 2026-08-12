@@ -63,3 +63,13 @@ output "db_password" {
   sensitive   = true
   description = "Password generado. Vive en el state, no en git."
 }
+
+output "alb_dns_name" {
+  value       = aws_lb.app.dns_name
+  description = "DNS del ALB. Éxito: http://<dns>/health y /phpinfo.php."
+}
+
+output "asg_name" {
+  value       = aws_autoscaling_group.app.name
+  description = "Nombre del Auto Scaling Group."
+}

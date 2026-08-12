@@ -8,8 +8,8 @@ iac/
 ├── aws/
 │   ├── bootstrap/         ← state S3 + lock DynamoDB + Budget (A2)
 │   ├── network.tf         ← VPC 2 AZ, públicas + privadas, sin NAT (A4)
-│   ├── data.tf / rds.tf   ← S3 + RDS PostgreSQL t4g.micro (A5)
-│   └── …                  ← ALB/ASG (A6)
+│   ├── data.tf / rds.tf    ← S3 + RDS PostgreSQL t4g.micro (A5)
+│   └── alb.tf / compute.tf ← ALB + ASG t3.nano (A6)
 ├── providers/
 ├── main.tf                ← no aplicar desde acá
 ├── variables.tf

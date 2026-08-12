@@ -14,3 +14,8 @@ db_engine_version    = "16"
 db_multi_az          = false
 db_name              = "app"
 db_username          = "appadmin"
+
+instance_type        = "t3.nano"
+asg_min_size         = 1
+asg_max_size         = 2
+asg_desired_capacity = 1
