@@ -1,0 +1,8 @@
+project_name        = "poc-cloud-foundation-lab"
+environment         = "local"
+region              = "us-east-1"
+availability_zone   = "us-east-1a"
+localstack_endpoint = "http://localhost:4566"
+ami_id              = "ami-12345678"
+instance_type       = "t3.nano"
+bucket_name         = "poc-cloud-foundation-lab-data"
