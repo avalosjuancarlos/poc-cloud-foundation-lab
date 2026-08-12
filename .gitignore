@@ -10,6 +10,8 @@ venv/
 .env.local
 *.pem
 *.key
+iac/aws/**/terraform.tfvars
+iac/aws/backend.tf
 
 # OS
 .DS_Store

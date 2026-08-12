@@ -2,8 +2,8 @@
 
 Orquestación end-to-end, agrupada por stack (ADR 002 / 005).
 
-- **`local/`** — etapa LocalStack (los tres demos del checklist viven acá)
-- **`aws/`** — etapa AWS real (todavía no)
+- **`local/`** — etapa LocalStack
+- **`aws/`** — etapa AWS real (`01_creds.sh` ahora; apply/verify en A8)
 
 Convenciones del curso:
 - **Idempotentes** — se pueden correr dos veces sin romper

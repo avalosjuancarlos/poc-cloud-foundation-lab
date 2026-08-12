@@ -1,0 +1,3 @@
+project_name = "poc-cloud-foundation-lab"
+region       = "us-east-1"
+aws_profile  = "poc-aws"

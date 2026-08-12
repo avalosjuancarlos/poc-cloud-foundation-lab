@@ -1,0 +1,16 @@
+# Después de aplicar iac/aws/bootstrap:
+#   cp backend.tf.example backend.tf
+#   terraform init -migrate-state
+#
+# No commitear backend.tf con un bucket de otra cuenta.
+
+terraform {
+  backend "s3" {
+    bucket         = "poc-cloud-foundation-lab-tfstate-ACCOUNT_ID"
+    key            = "aws/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "poc-cloud-foundation-lab-tf-lock"
+    encrypt        = true
+    profile        = "poc-aws"
+  }
+}

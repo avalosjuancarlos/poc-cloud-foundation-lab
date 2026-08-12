@@ -4,8 +4,11 @@ Stacks separados (ADR 001). No hay un `main.tf` parametrizado local vs aws.
 
 ```
 iac/
-├── local/                 ← etapa 1: LocalStack (apply canónico)
-├── providers/             ← ejemplos del starter (azure/gcp); AWS local está en local/providers.tf
+├── local/                 ← LocalStack
+├── aws/
+│   ├── bootstrap/         ← state S3 + lock DynamoDB + Budget (A2)
+│   └── …                  ← VPC/ALB/RDS (A4–A6)
+├── providers/
 ├── main.tf                ← no aplicar desde acá
 ├── variables.tf
 └── outputs.tf
@@ -14,20 +17,19 @@ iac/
 ## LocalStack
 
 ```bash
-cd iac/local
-terraform init
-terraform plan
-terraform apply
+./scripts/local/02_apply.sh
 ```
-
-Requiere LocalStack en `:4566` (`compose.yaml`). Detalle: `iac/local/README.md`.
 
 ## AWS real
 
-`iac/aws/` se agrega en la etapa 2. No compartir módulos con `local/`.
+```bash
+./scripts/aws/01_creds.sh
+# bootstrap: ver iac/aws/README.md
+```
+
+No compartir módulos entre `local/` y `aws/`.
 
 ## Convenciones
 
-- **No commitear `.tfstate`** (ya está en .gitignore)
-- **Variables tipadas** — `terraform validate`
-- **Backend remoto** solo en el stack aws (S3 + DynamoDB lock)
+- **No commitear `.tfstate` ni `iac/aws/terraform.tfvars`**
+- **Backend remoto** solo en el stack de aplicación aws (después del bootstrap)
