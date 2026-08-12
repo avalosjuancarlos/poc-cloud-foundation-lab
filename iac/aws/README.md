@@ -53,15 +53,15 @@ ALB público (HTTP 80) + ASG `t3.nano` desired 1 / max 2 en subnets públicas. S
 
 ## 6. Backend del stack de aplicación
 
-Cuando existan red/RDS/ALB (A4–A6):
-
 ```bash
 cp iac/aws/backend.tf.example iac/aws/backend.tf
 # reemplazá ACCOUNT_ID con el output account_id del bootstrap
-terraform -chdir=iac/aws init
+cp iac/aws/terraform.tfvars.example iac/aws/terraform.tfvars
+./scripts/aws/02_apply.sh
+./scripts/aws/03_verify.py
 ```
 
-`terraform.tfvars` y `backend.tf` no se commitean (gitignore).
+`terraform.tfvars` y `backend.tf` no se commitean (gitignore). `02_apply` pide confirmación después de Infracost.
 
 ## 7. Infracost
 

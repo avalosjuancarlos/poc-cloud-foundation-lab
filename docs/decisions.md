@@ -148,7 +148,7 @@ Alternativas:
 
 Tradeoff: Hay que configurar el profile a mano una vez. A cambio, local y aws no se pisan.
 
-Resultado: Documentado. Guardrails en A2; scripts en A8.
+Resultado: Implementado. Guardrails en A2; `scripts/aws/01_creds.sh`, `02_apply.sh` y `03_verify.py` en A8.
 
 ### 010 — Apply efímero y Budget
 

@@ -28,6 +28,8 @@ iac/
 ./scripts/aws/01_creds.sh
 # bootstrap: ver iac/aws/README.md
 ./scripts/aws/infracost.sh   # host; nunca iac/local
+./scripts/aws/02_apply.sh    # pide confirmación
+./scripts/aws/03_verify.py
 ```
 
 No compartir módulos entre `local/` y `aws/`.

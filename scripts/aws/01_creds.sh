@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Deja el entorno listo para AWS real: sin LocalStack, profile poc-aws (ADR 009).
+# Se puede sourcear desde 02_apply / 03_verify para exportar las variables.
 set -euo pipefail
 
 echo "==> 01_creds: quitando overlay LocalStack del devcontainer"
