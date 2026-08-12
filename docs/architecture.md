@@ -82,5 +82,5 @@ El sample Packt es deliberadamente frágil (una AZ, un instance, DB en la misma 
 
 ## Alcance de esta etapa
 
-- Sí: API LocalStack (VPC, EC2 mock, IAM, S3), Compose, scripts, tests, doc de costos.
+- Sí: API LocalStack (VPC, EC2 mock, IAM, S3), Compose, scripts, tests, [doc de costos](./costs-local.md).
 - No: phpinfo en el navegador, RDS, multi-AZ, backend remoto, `iac/aws`.

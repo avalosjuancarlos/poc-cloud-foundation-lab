@@ -49,11 +49,12 @@ terraform -chdir=iac/local destroy
 ├── tests/local/            # pytest (correr en el devcontainer)
 ├── docs/
 │   ├── architecture.md
-│   └── decisions.md
+│   ├── decisions.md
+│   └── costs-local.md
 └── requirements.txt
 ```
 
-Detalle: [docs/architecture.md](docs/architecture.md) · [iac/local/README.md](iac/local/README.md) · [scripts/local/README.md](scripts/local/README.md)
+Detalle: [docs/architecture.md](docs/architecture.md) · [docs/costs-local.md](docs/costs-local.md) · [iac/local/README.md](iac/local/README.md) · [scripts/local/README.md](scripts/local/README.md)
 
 ---
 
@@ -68,8 +69,9 @@ Etapa local:
 - [x] `compose.yaml` con LocalStack
 - [x] Tests (`pytest` en el devcontainer)
 - [x] README explicando cómo correrlo end-to-end
+- [x] `docs/costs-local.md` (FinOps etapa local)
 
-Pendiente de etapas siguientes: stack `*/aws`, RDS, doc de costos (`docs/costs-local.md`).
+Pendiente de etapas siguientes: stack `*/aws`, RDS.
 
 ---
 
