@@ -1,6 +1,6 @@
 # Arquitectura — poc-cloud-foundation-lab
 
-Dos stacks (ADR 001): **local** (LocalStack Community) y **aws** (`us-east-1`, ADR 006). Decisiones: [decisions.md](./decisions.md). Costos: [costs-local.md](./costs-local.md) · [costs-aws.md](./costs-aws.md). Plan/Gantt AWS: [plan-aws.md](./plan-aws.md). Runbook: [README](../README.md).
+Dos stacks (ADR 001): **local** (LocalStack Community) y **aws** (`us-east-1`, ADR 006). Decisiones: [decisions.md](./decisions.md). Costos: [costs-local.md](./costs-local.md) · [costs-aws.md](./costs-aws.md). Plan/Gantt AWS: [plan-aws.md](./plan-aws.md). Mejoras (no implementadas): [improvements/](./improvements/). Runbook: [README](../README.md).
 
 ---
 

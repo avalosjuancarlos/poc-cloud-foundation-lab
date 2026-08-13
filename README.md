@@ -62,7 +62,7 @@ terraform -chdir=iac/aws destroy
 
 No hagas destroy del bootstrap si queda state remoto. Nunca `terraform apply` en `app/`. Nunca `infracost scan iac/local`.
 
-Costos: [docs/costs-aws.md](docs/costs-aws.md) · Gantt: [docs/plan-aws.md](docs/plan-aws.md) · [scripts/aws/README.md](scripts/aws/README.md) · [iac/aws/README.md](iac/aws/README.md)
+Costos: [docs/costs-aws.md](docs/costs-aws.md) · Gantt: [docs/plan-aws.md](docs/plan-aws.md) · Mejoras AWS: [docs/improvements/](docs/improvements/) · [scripts/aws/README.md](scripts/aws/README.md) · [iac/aws/README.md](iac/aws/README.md)
 
 ---
 
@@ -79,7 +79,7 @@ Costos: [docs/costs-aws.md](docs/costs-aws.md) · Gantt: [docs/plan-aws.md](docs
 ├── scripts/local/  scripts/aws/
 ├── tests/local/  tests/aws/
 ├── infracost.yml           # solo iac/aws (ADR 011)
-└── docs/                   # architecture, decisions, costs-*, plan-aws (Gantt)
+└── docs/                   # architecture, decisions, costs-*, plan-aws, improvements/
 ```
 
 ---
