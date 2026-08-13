@@ -8,6 +8,12 @@ Dos stacks (ADR 001): **local** (LocalStack Community) y **aws** (`us-east-1`, A
 
 El devcontainer habla con LocalStack en `localhost:4566`. Terraform aplica VPC → EC2 (API) + IAM + S3. Community no bootea la VM; `user-data.sh` viaja en la API y no se ejecuta.
 
+![Stack local](diagrams/local.svg)
+
+Fuente editable: [diagrams/local.drawio](diagrams/local.drawio) (Draw.io / [diagrams.net](https://app.diagrams.net/)).
+
+Vista lógica:
+
 ```mermaid
 flowchart TB
   subgraph workstation["Devcontainer / Docker Compose"]
@@ -60,6 +66,12 @@ flowchart TB
 ## Stack aws
 
 Región `us-east-1`, AZs `a` y `b`. Internet → ALB (subnets públicas) → ASG `t3.nano` (públicas, SG solo desde el ALB) → RDS PostgreSQL privada. S3 vía instance profile. Sin NAT Gateway (ADR 007). Infracost cotiza este HCL, no el local (ADR 011).
+
+![Stack AWS](diagrams/aws.svg)
+
+Fuente editable: [diagrams/aws.drawio](diagrams/aws.drawio) (Draw.io / [diagrams.net](https://app.diagrams.net/)).
+
+Vista lógica:
 
 ```mermaid
 flowchart TB
