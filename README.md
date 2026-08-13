@@ -2,9 +2,16 @@
 
 Proyecto integrador del módulo Cloud Computing (ITBA).
 
-> **Integrantes:** _completar con los miembros del grupo_
+> **Integrantes:** Juan Carlos Avalos
 
-Dos stacks (ADR 001): **local** (LocalStack Community, USD 0) y **aws** (`us-east-1`, ALB + ASG + RDS). El apply canónico nunca es `app/` (sample Packt en `eu-west-1`: costo + SG abierto).
+El punto de partida es el sample Terraform del libro *[Building Resilient Architectures on AWS](https://github.com/PacktPublishing/Building-Resilient-Architectures-on-AWS)* (Packt), copiado en `app/`: una VPC pública, una EC2 con LAMP/`phpinfo` y MariaDB **en la misma VM**, región `eu-west-1`, security group `0.0.0.0/0:80`. Ese código se conserva como baseline (ADR 003). **No se aplica:** es AWS real, genera costo y deja HTTP abierto.
+
+A partir de ese ejemplo se construyen **dos stacks independientes** (ADR 001), con IAM, scripts y tests propios:
+
+1. **Local** (`iac/local`) — Terraform contra [LocalStack](https://www.localstack.cloud/) Community en el devcontainer (USD 0). Valida el contrato de API (VPC, EC2 mock, IAM, S3). Community no ejecuta `user-data.sh`; el éxito no es phpinfo (ADR 004).
+2. **AWS** (`iac/aws`) — cuenta real en `us-east-1`: VPC 2 AZ, ALB + ASG, S3, RDS PostgreSQL fuera de la EC2, sin NAT Gateway. Apply en el host (profile `poc-aws`), Infracost antes de confirmar, destroy el mismo día.
+
+El apply canónico nunca es `app/`.
 
 ---
 
@@ -86,7 +93,7 @@ Costos: [docs/costs-aws.md](docs/costs-aws.md) · Gantt: [docs/plan-aws.md](docs
 
 ## Checklist del proyecto
 
-- [ ] Integrantes del grupo en este README
+- [x] Integrantes del grupo en este README
 
 Etapa local:
 
