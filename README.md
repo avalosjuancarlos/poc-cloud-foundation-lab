@@ -62,7 +62,7 @@ terraform -chdir=iac/aws destroy
 
 No hagas destroy del bootstrap si queda state remoto. Nunca `terraform apply` en `app/`. Nunca `infracost scan iac/local`.
 
-Costos: [docs/costs-aws.md](docs/costs-aws.md) · runbook corto: [scripts/aws/README.md](scripts/aws/README.md) · [iac/aws/README.md](iac/aws/README.md)
+Costos: [docs/costs-aws.md](docs/costs-aws.md) · Gantt: [docs/plan-aws.md](docs/plan-aws.md) · [scripts/aws/README.md](scripts/aws/README.md) · [iac/aws/README.md](iac/aws/README.md)
 
 ---
 
@@ -79,33 +79,35 @@ Costos: [docs/costs-aws.md](docs/costs-aws.md) · runbook corto: [scripts/aws/RE
 ├── scripts/local/  scripts/aws/
 ├── tests/local/  tests/aws/
 ├── infracost.yml           # solo iac/aws (ADR 011)
-└── docs/                   # architecture, decisions, costs-local, costs-aws
+└── docs/                   # architecture, decisions, costs-*, plan-aws (Gantt)
 ```
 
 ---
 
 ## Checklist del proyecto
 
+- [ ] Integrantes del grupo en este README
+
 Etapa local:
 
 - [x] `docs/architecture.md` con diagrama y componentes
-- [x] `docs/decisions.md` con al menos 5 ADR
-- [x] `iam/` con trust + policies + bucket policy (`iam/local/`)
-- [x] `scripts/` con al menos 3 demos idempotentes (`scripts/local/`)
-- [x] `compose.yaml` con LocalStack
-- [x] Tests (`pytest` en el devcontainer)
-- [x] README explicando cómo correrlo end-to-end
-- [x] `docs/costs-local.md` (FinOps etapa local)
+- [x] `docs/decisions.md` ADR 001–005 (el curso pide ≥5)
+- [x] `iam/local/` trust + policies + bucket policy
+- [x] `scripts/local/` 3 demos idempotentes (`01_up`, `02_apply`, `03_verify`)
+- [x] `compose.yaml` con LocalStack Community
+- [x] `tests/local/` (`pytest` en el devcontainer)
+- [x] README E2E local (éxito = API LocalStack, no phpinfo)
+- [x] `docs/costs-local.md` (FinOps etapa local; no Infracost)
 
 Etapa AWS:
 
-- [x] Diagrama AWS + ADR 006–011
+- [x] Diagrama AWS + ADR 006–011 + `docs/plan-aws.md`
 - [x] `iam/aws/` (trust, least privilege, Deny TLS)
 - [x] `scripts/aws/` (`01_creds`, `02_apply`, `03_verify`)
 - [x] `tests/aws/` (skip sin credenciales)
-- [x] README E2E: profile + unset endpoint + Infracost + apply + destroy
-- [x] `docs/costs-aws.md` desde Infracost (`iac/aws`, no `iac/local`)
-- [x] RDS PostgreSQL fuera de la EC2; sin NAT Gateway
+- [x] README E2E: profile, Infracost, apply, destroy el mismo día
+- [x] `docs/costs-aws.md` desde Infracost (solo `iac/aws`)
+- [x] `iac/aws/`: 2 AZ, ALB+ASG, S3, RDS Single-AZ, sin NAT; bootstrap + Budget
 
 ---
 
